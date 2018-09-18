@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<style type="text/css">
+p{font-family:monospace;white-space:pre-wrap}
+</style>
+<title>readme.html</title>
+</head>
+<body>
+<p>
+_____________
+MATLAB files
+¯¯¯¯¯¯¯¯¯¯¯¯¯
+ • SudokuSolver.m  - use this with MATLAB* to solve Sudokus
+ • SudokuMaker.m   - use this with MATLAB* to make Sudokus
+ • publisher.m     - use this with MATLAB* to make .png files of your Sudokus so that they can be printed and published
+
+ • numbers.png     - file used by publisher.m
+ • suma.m          - a function called by SudokuMaker.m
+ • other .m files  - needed by both SudokuSolver.m and SudokuMaker.m
+
+*Octave, a free imitator of MATLAB, can also "work"
+
+_____________
+my goal
+¯¯¯¯¯¯¯¯¯¯¯¯¯
+The sole purpose of this code is not to make some flashy software or a tool for giving a single hint on how to solve a Sudoku but to make the best code for making the most difficult Sudokus. My initial goal was to make the ABSOLUTE hardest Sudokus, but I soon only cared to make the quality so high (people can spend many years on this task), so you may not be able to make the world's hardest Sudoku, but they will get very close. Also, do not get upset if SudokuSolver.m tells you that a Sudoku that is claimed to be very difficult by the author is easy. This can be especially frustrating when you yourself cannot solve it. This happens because VERY difficult Sudokus are the target audience of my solver. I must say that there is one thing I did that was not intended to make the most difficult Sudokus: I added a feature to allow the created Sudokus to have various symmetries, even though these symmetries restrict the Sudoku maker from making the hardest Sudokus.
+
+Because I value GOOD algorithms, whenever I had to choose between speed and quality, I chose quality (don't worry... it's still plenty quick). For example, when resorting to guessing the number to some squares to solve a Sudoku, my code will try advanced algorithms instead of simple ones to test each guess. This slows the code down, but it allows for a more meaningful interpretation of the "number of guesses" value and the "depth of thread" value. See SudokuSolver.m for an explanation of these variables.
+
+I made some very hard Sudokus. I have put the seeds that generated them in SudokuMaker.m. Good luck trying to solve them! Just don't use my code to do it because that will take, at most, a few seconds.
+
+This code is under the BSD license, so you can mostly do what you want with it. But! If you by blind luck use this code to create and publish the world's hardest Sudoku, please give me, Bradley Knockel, some credit (money is also good!).
+
+I've done my best to make the code readable, so, if you are curious how Sudokus can be generated and solved with computers, feel free to look at it.
+
+_____________
+a possible future for this code
+¯¯¯¯¯¯¯¯¯¯¯¯¯
+In hindsight, PERHAPS I should have chosen a different guessing algorithm for solving hard Sudokus. I certainly could have written a faster one, but speed is not my goal.
+
+I use an approach called Ariadne's thread. I make a list of all the squares that have yet to be solved, and then I order the list so that the squares with least uncertainty are at the top (I put in some randomness as well). I then start a guess/thread with the square on the top of the list. I first start with a "depth of thread" that is 1, meaning that I cycle through all the possibilities of that square and try to solve the resulting Sudokus. If a certain thread is discovered to be a dead end, Ariadne's thread dictates that I never walk any further down that thread. If no solutions are found, rather than trying another square with "depth of thread" being 1, the "depth of thread" progresses to 2 meaning that I build upon the guesses already made by examining two squares (the two squares at the top of the list). I chose increasing the "depth of thread" over changing which squares are guessed for no great reason.
+
+However, for the difficult Sudokus, it might matter which approach I take. If I were to scan all the squares at a certain "depth of thread," this might give a much shorter runtime if I compare all the results because this is effectively how some advanced solving strategies work. Since I have not implemented this method, I do no know how good it would be. Ideally, I would try it and ask:
+ • Is it quicker?
+ • Does the "depth of thread" and "number of guesses" it returns have more meaning for a human solver?
+If the answer is "yes" to both, then I get rid of the old method. If the answer is "yes" to only one of these questions, I then edit su.f so that, depending on the value of the input "go," one or the other of these methods is used. Probably, the answer to the second question is not "yes" or "no." Probably, both methods should exist simultaneously.
+
+Maybe one day I will try this. Maybe when I try it, the answers to the above questions will be obvious in hindsight. If you want to try it, feel free! This code is released under a BSD license!
+
+_____________
+more info
+¯¯¯¯¯¯¯¯¯¯¯¯¯
+ • Release date of this version: July 2013
+ • Version of MATLAB I used: R2006b
+ • If you find bugs or have questions, leave me a message at www.BradleyKnockel.com
+
+Many thanks to...
+ • http://www.sudoku.org.uk/PDF/Solving_Sudoku.pdf
+ • http://www.sudokuwiki.org/Strategy_Families
+
+</p>
+</body>
+</html>

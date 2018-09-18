@@ -1,0 +1,142 @@
+\documentclass[12pt]{article}
+%\usepackage{ctex}
+%\usepackage[no-math]{fontspec}
+\usepackage[top=0.5in,bottom=0.5in,left=0.5in,right=0.5in]{geometry}
+\usepackage{xeCJK}[2011/05/20 v2.4.1]
+\setCJKmainfont{KaiTi}
+
+\defaultfontfeatures{Mapping=tex-text}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,decorations.pathmorphing,positioning}
+\usepackage{amsmath}
+%\usepackage{amssymb}
+%\usepackage{graphicx}
+%\usepackage{amsfonts}
+%\usepackage{listings}
+%\usepackage{natbib}
+%\usepackage{dcolumn}
+%\usepackage{tabularx}
+\usepackage{ulem}
+%\usepackage{enumitem}
+%\usepackage{array}
+%\usepackage{dashrule}
+\usepackage{scalerel}
+%\usepackage[usestackEOL]{stackengine}
+%\usepackage{adjustbox}
+%\usepackage{multirow}
+%\usepackage{booktabs}
+%\usepackage[math]{anttor}
+%\usepackage{emerald}
+%\usepackage[sfdefault]{quattrocento}
+
+% for mathop
+\newcommand{\myunit}{0.8cm}
+\newcommand{\num}[1]{\node[rectangle,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit,anchor=south] {#1};}
+\newcommand{\nul}{\node[draw,rectangle, rounded corners,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit]{};}
+\newcommand{\nulls}{\node[rectangle, rounded corners,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit]{};}
+\newcommand{\lin}{\node[rectangle,outer sep=1,inner sep=0,minimum width=\myunit*1.1,anchor=north]{};}
+\newcommand{\arcs}{\node[fill=black,rectangle,outer sep=0,inner sep=0,minimum height=\myunit*1.1,anchor=south]{};}
+%----------------
+
+% \gridraiseamount is a font-specific value
+\newcommand\gridraiseamount{0.12em}
+
+% \grid for a single character
+\newcommand\grid[1]{%
+\begin{tikzpicture}[baseline=(char.base)]
+  \path[use as bounding box]
+    (0,0) rectangle (1em,1em);
+  \draw[help lines,step=0.5em]
+    (0,0) grid (1em,1em);
+  \draw[help lines,dashed]
+    (0,0) -- (1em,1em)  (0,1em) -- (1em,0);
+  \node[inner sep=0pt,anchor=base west]
+    (char) at (0em,\gridraiseamount) {#1};
+\end{tikzpicture}}
+
+% \grid for a single character
+\newcommand\engrid[1]{%
+\begin{tikzpicture}[baseline=(char.base)]
+  \path[use as bounding box]
+    (0,0) rectangle (5.4em,1em);
+  \draw[help lines,xstep=.6em,ystep=0.5em]
+    (0,0) grid (3.6em,1em);
+  \draw[help lines,xstep=.4em,ystep=1em]
+    (3.6em,0em) grid (4em,1em);
+  \draw[help lines,xstep=.8em,ystep=0.5em]
+    (4em,0em) grid (4.8em,1em);
+  \draw[help lines,xstep=.6em,ystep=0.5em]
+    (4.8em,0em) grid (5.4em,1em);
+  \node[inner sep=0pt,anchor=base west]
+    (char) at (0em,\gridraiseamount) {#1};
+\end{tikzpicture}}
+
+\newcommand\clocks[3]{
+    \newcommand\radius{1.7cm}
+    \newcommand\hour{#1}
+    \newcommand\minute{#2}
+    \foreach \x [evaluate = \x as \y using int(\x/30)] in {30,60,...,360} {
+        \draw [line width = \radius*0.1/10] (\x:\radius*9/10) -- (\x:\radius);
+        \node (\x) at (90-\x:\radius*8/10) {\y};
+    };
+    \foreach \x in {0,6,...,360} {
+        \draw [line width = \radius*0.1/20] (\x:\radius*9.5/10) -- (\x:\radius);
+    };
+    \draw [line width = \radius*0.1/10] (0:0cm) circle [radius = \radius];
+    %\draw (0:0cm) circle [radius = \radius*0.4/10];
+    \node (opoint) [draw,circle,minimum size=\radius*0.4/10,inner sep=1pt] at (0cm,0cm){};
+
+    \ifthenelse{ \equal{#3}{1} }{
+    \draw [line width = \radius*0.4/10] (90-\hour*30-30*\minute/60:-\radius*0.5/10) -- (90-\hour*30-30*\minute/60:\radius*5.5/10);
+    \draw [line width = \radius*0.2/10] (90-\minute*6:-\radius*1/10) -- (90-\minute*6:\radius*7.5/10);
+    \draw [line width = \radius*0.1/10] (90:-\radius*1.5/10) -- (90:\radius*8.5/10);}
+
+    \ifthenelse{ \equal{#3}{1} }{
+      \node [below=\radius*1.3 of opoint] {\underline{\qquad\qquad}:\underline{\qquad\qquad}};
+    }{
+      \node [below=\radius*1.2 of opoint] {\underline{#1}:\underline{#2}};
+    }
+}
+
+% define height of lowercase letters
+\newcommand{\lowercaseheight}{1ex}
+% define height of uppercase letters
+\newcommand{\uppercaseheight}{1.6ex}
+% define depth of descenders
+\newcommand{\descenderdepth}{-0.5ex}
+\newcommand\enlines[1]{\fontsize{42pt}{\baselineskip}\selectfont
+\raggedright
+\begin{tikzpicture}[overlay]
+  % baseline
+  \draw ((0,0) -- ++(\textwidth,0);
+  % lowercase height
+  \draw [ultra thin] (0,\lowercaseheight) -- ++(\textwidth,0);
+  % uppercase height
+  \draw (0,\uppercaseheight) -- ++(\textwidth,0);
+  % descender depth
+  \draw [ultra thin] (0,\descenderdepth) -- ++(\textwidth,0);
+  \node[inner sep=0pt,anchor=base west]
+    (char) at (0em,0em) {#1};
+\end{tikzpicture}\\[1.55cm]
+}
+
+\pagestyle{empty}
+\begin{document}
+%{\Large
+%\begin{center}
+%  \hspace{-.2cm}姓名:{\fontsize{38pt}{\baselineskip}\selectfont\grid{}\grid{}\grid{}}\quad Date:\uline{\quad}/\uline{\quad}/\uline{\quad\quad}\quad Temp:\uline{\quad\quad}$^{\circ}{\mathrm F}$\quad 温度:\uline{\quad\quad}$^{\circ}{\mathrm C}$
+%\end{center}}
+
+{\Large
+\begin{center}
+  \hspace{-.2cm}姓名:{\fontsize{38pt}{\baselineskip}\selectfont\grid{}\grid{}\grid{}}\quad Name:{\fontsize{38pt}{\baselineskip}\selectfont\engrid{}}\quad 日期:\uline{\quad}/\uline{\quad}/\uline{\quad}
+\end{center}}
+
+{\fontsize{48pt}{\baselineskip}\selectfont
+\xeCJKsetup{PunctStyle=plain}
+\vspace{0.5cm}
+\raggedright
+\input{wordscn.txt}}
+
+\end{document}

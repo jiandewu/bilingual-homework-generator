@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+
+\begin{scope}[shift={(6.000000,-0.000000)}]\node (op) {$290\times 144=\underline{\qquad\qquad}$};\matrix[matrix of math nodes,below=of op] (m){&&\num{2}&\num{9}&\num{0}&\\\num{\times}&&\num{1}&\num{4}&\num{4}&\\\lin&\lin&\lin&\lin&\lin&\\\nulls&\nul&\nul&\nul&\nul&\\\nul&\nul&\nul&\nul&\nulls&\\\nul&\nul&\nul&\nulls&\nulls&\\\lin&\lin&\lin&\lin&\lin&\\\nul&\nul&\nul&\nul&\nul&\\};\draw[thick] (m-4-1.north west) -- (m-4-5.north east);\draw[thick] (m-8-1.north west) -- (m-8-5.north east);\end{scope}
+
+\begin{scope}[shift={(12.000000,-0.000000)}]\node (op) {$832\div 26=\underline{\qquad\qquad}$};\matrix[matrix of math nodes,below=of op] (m){&&&\nulls&\nulls&\\&&&&\lin&\\\num{26}&\arcs&\num{8}&\num{3}&\num{2}&\\&&\nulls&\nulls&&\\&&&&\lin&\\&&\nulls&\nulls&\nulls&\\&&&\nulls&\nulls&\\&&&&\lin&\\&&\nulls&\nulls&\nulls&\\};\draw[thick] (m-3-3.north west) -- (m-3-5.north east);\end{scope}
+
+\begin{scope}[shift={(0.000000,-0.000000)}]\node (op) {$42\times 129=\underline{\qquad\qquad}$};\matrix[matrix of math nodes,below=of op] (m){&&\num{4}&\num{2}&\\\num{\times}&\num{1}&\num{2}&\num{9}&\\\lin&\lin&\lin&\lin&\\\nulls&\nulls&\nulls&\nulls&\\\nulls&\nulls&\nulls&\nulls&\\\nulls&\nulls&\nulls&\nulls&\\\lin&\lin&\lin&\lin&\\\nulls&\nulls&\nulls&\nulls&\\};\draw[thick] (m-4-1.north west) -- (m-4-4.north east);\end{scope}
+
+\begin{scope}[shift={(6.000000,-8.000000)}]\node (op) {$22\times 50=\underline{\qquad\qquad}$};\matrix[matrix of math nodes,below=of op] (m){&&\num{2}&\num{2}&\\\num{\times}&&\num{5}&\num{0}&\\\lin&\lin&\lin&\lin&\\\lin&\lin&\lin&\lin&\\\nul&\nul&\nul&\nulls&\\\lin&\lin&\lin&\lin&\\\nul&\nul&\nul&\nul&\\};\draw[thick] (m-4-1.north west) -- (m-4-4.north east);\draw[thick] (m-7-1.north west) -- (m-7-4.north east);\end{scope}
+
+\begin{scope}[shift={(12.000000,-8.000000)}]\node (op) {$225\times 18=\underline{\qquad\qquad}$};\matrix[matrix of math nodes,below=of op] (m){&\num{2}&\num{2}&\num{5}&\\\num{\times}&&\num{1}&\num{8}&\\\lin&\lin&\lin&\lin&\\\nul&\nul&\nul&\nul&\\\nul&\nul&\nul&\nulls&\\\lin&\lin&\lin&\lin&\\\nul&\nul&\nul&\nul&\\};\draw[thick] (m-4-1.north west) -- (m-4-4.north east);\draw[thick] (m-7-1.north west) -- (m-7-4.north east);\end{scope}
+
+\begin{scope}[shift={(0.000000,-8.000000)}]\node (op) {$279\times 133=\underline{\qquad\qquad}$};\matrix[matrix of math nodes,below=of op] (m){&&\num{2}&\num{7}&\num{9}&\\\num{\times}&&\num{1}&\num{3}&\num{3}&\\\lin&\lin&\lin&\lin&\lin&\\\nulls&\nulls&\nulls&\nulls&\nulls&\\\nulls&\nulls&\nulls&\nulls&\nulls&\\\nulls&\nulls&\nulls&\nulls&\nulls&\\\lin&\lin&\lin&\lin&\lin&\\\nulls&\nulls&\nulls&\nulls&\nulls&\\};\draw[thick] (m-4-1.north west) -- (m-4-5.north east);\end{scope}
+
+\end{tikzpicture}
+
+\vspace{1.5cm}\begin{align*}
+&88\div 11 =\underline{\qquad\qquad}&&10\times 14 =\underline{\qquad\qquad}&&20\times 30 =\underline{\qquad\qquad}&\\[10pt]
+&18\times 11 =\underline{\qquad\qquad}&&14\times 11 =\underline{\qquad\qquad}&&441\div\underline{\qquad\qquad}=21&\\[10pt]
+&13\div 13 =\underline{\qquad\qquad}&&72-\underline{\qquad\qquad}=55&&14\times 17 =\underline{\qquad\qquad}&\\[10pt]
+&16\div 2 =\underline{\qquad\qquad}&&\underline{\qquad\qquad}\div13=24&&10\times4\times\underline{\qquad\qquad}=680&\\[10pt]
+&33=\underline{\qquad}\times\underline{\qquad}&&14=\underline{\qquad}\times\underline{\qquad}&&165=\underline{\qquad}\times\underline{\qquad}\times\underline{\qquad}&\\[10pt]
+&\frac{2}{7}+\frac{5}{7}=\underline{\qquad\qquad}&&\frac{1}{7}+\frac{1}{2}=\underline{\qquad\qquad}&&\frac{1}{3}+\frac{2}{5}=\underline{\qquad\qquad}&\\[10pt]
+\end{align*}
+

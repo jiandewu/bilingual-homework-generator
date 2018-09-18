@@ -1,0 +1,538 @@
+% sudoku.tex
+% Zachary Catlin (zcatlin@purdue.edu), January 2005
+%
+% This file contains macros that typeset and solve (or with hard problems,
+% partially solve) sudoku problems. Per the contest for which this was written,
+% problem grids come in files like
+% ----begin file----
+% ..483..72
+% .12....8.
+% ..52.13..
+% ....62.91
+% 7..5.9..3
+% 94.78....
+% ..39.74..
+% .5....61.
+% 28..469..
+% ----end file------
+% i.e., nine lines of nine characters each (not counting the ending newline),
+% each representing a row of the grid, with digits representing themselves and
+% periods representing blank spaces.
+%
+% The macros make extensive use of chardef tokens as variables; they can only
+% hold integers from 0 to 255, but they don't hog up count registers (the
+% alternative); as the macros need to deal with large numbers of small integers,
+% this works out wonderfully (thanks to Victor Eijkhout for suggesting this way
+% to hold integer values in his `TeX by Topic').
+%
+% The actual data about the grid and its state of solution are stored in two
+% sets of tokens, which I use as two- and three-dimensional arrays:
+%
+% \sdk@grid{x}c{y}
+%    This stores the digit at row {x} and column {y} of the grid, or 0 if there
+%    is no digit at that position; \sdk@input and \sdk@parseline initialize
+%    these based on the given file, and \sdk@writegrid and \sdk@gridline use
+%    them to typeset the grid.
+%
+% \sdk@q{x}c{y}n{z}
+%    This stores whether it is possible, based on what is known about the grid,
+%    that the square at row {x} and {y} could be the digit {z}: 1 means that
+%    it is still *possible* that this could be the case, 0 means that either
+%    that has been ruled out or that the digit for that square has been
+%    determined. \sdk@initgrid initializes these based on \sdk@grid*c*, and
+%    \sdk@solve uses them in the solution process.
+%
+% Both arrays are 1-based; using these as arrays means extensive use of
+% \csname...\endcsname to support dynamic token names.
+%
+% Please note that these macros could use improvement; most notably, any
+% inconsistencies in the grid will go unnoticed, and if the file is not exactly
+% in the above format, Bad Things(TM) may happen. Fixing these, and adding
+% improvements to the solver, are left as exercises to the reader.
+%
+% Thanks go to the aforementioned Victor Eijkhout and to Paul Abrahams,
+% Kathryn Hargreaves, and Karl Berry for their `TeX for the Impatient'; without
+% these books (and their free availability), I wouldn't have been able to do
+% what I did; I heartily recommend both books to anyone who wants to learn
+% how to use TeX at a low level.
+
+% This takes chardef token #1 and increments it by #2. You can't do this with a
+% primitive as chardef tokens are constants, but one can do the addition using
+% a count register; \count255 is by convention used as a temporary variable,
+% so it is a natural choice.
+\def\sdk@addto#1#2{%
+  \count255 = \number#1%
+  \advance\count255 by #2%
+  \chardef#1 = \count255\relax%
+}
+
+% This takes a coordinate #1 and changes it to that of the first row or column
+% of the 3x3 square; specifically, this calculates ((n-1) - ((n-1) mod 3)) + 1.
+\def\sdk@squarebase#1{%
+  \count255 = \number#1%
+  \advance\count255 by -1%
+  \divide\count255 by 3%
+  \multiply\count255 by -3%
+  \advance\count255 by \number#1%
+  \multiply\count255 by -1%
+  \advance\count255 by \number#1%
+  \advance\count255 by 1%
+  \chardef#1 = \count255\relax%
+}
+
+% This takes the nine tokens after `\sdk@parseline' (in practice, the nine
+% characters of a line in the file), assigns the \sdk@grid entries for the
+% current row (0 for a . in the line; digits stand for themselves), and
+% increments the row counter \sdk@row in preparation for the next line.
+\def\sdk@parseline#1#2#3#4#5#6#7#8#9{%
+  \ifx.#1%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c1\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c1\endcsname = #1%
+  \fi
+  \ifx.#2%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c2\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c2\endcsname = #2%
+  \fi
+  \ifx.#3%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c3\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c3\endcsname = #3%
+  \fi
+  \ifx.#4%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c4\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c4\endcsname = #4%
+  \fi
+  \ifx.#5%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c5\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c5\endcsname = #5%
+  \fi
+  \ifx.#6%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c6\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c6\endcsname = #6%
+  \fi
+  \ifx.#7%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c7\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c7\endcsname = #7%
+  \fi
+  \ifx.#8%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c8\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c8\endcsname = #8%
+  \fi
+  \ifx.#9%
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c9\endcsname = 0%
+  \else
+    \expandafter\chardef\csname sdk@grid\number\sdk@row c9\endcsname = #9%
+  \fi
+  \sdk@addto{\sdk@row}{1}%
+}
+
+% This allocates a file stream for reading in grid files.
+\newread\sdk@file
+
+% This opens the specified file, initializes \sdk@row for use with
+% \sdk@parseline, and reads in 9 lines to be processed by \sdk@parseline.
+\def\sdk@input#1{%
+  \openin\sdk@file = #1%
+  \chardef\sdk@row = 1%
+  \loop
+    \read\sdk@file to \sdk@line
+    \expandafter\sdk@parseline\sdk@line
+    \ifnum\sdk@row < 10%
+  \repeat
+  \closein\sdk@file
+}
+
+% Writes out a line of the table made by \sdk@writegrid, using the specified
+% row of \sdk@grid*c*.
+\def\sdk@gridline#1{&%
+  \expandafter\ifnum\csname sdk@grid#1c1\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c1\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c2\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c2\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c3\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c3\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c4\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c4\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c5\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c5\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c6\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c6\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c7\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c7\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c8\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c8\endcsname
+  \fi &&%
+  \expandafter\ifnum\csname sdk@grid#1c9\endcsname < 1%
+    \empty
+  \else
+    \expandafter\number\csname sdk@grid#1c9\endcsname
+  \fi &%
+  \cr
+}
+
+% Writes out a sudoku grid using the information in \sdk@grid*c*; the grid is
+% exactly square, and the numbers are centered in their squares.
+\def\sdk@writegrid{{%
+\tt
+\setbox0 = \hbox{8}%
+\edef\numlen{\the\wd0}%
+\dimen0 = 13.5em
+\advance\dimen0 by 6.4pt % width of the vrules
+\halign to \the\dimen0{\vrule width 1pt ##\tabskip=0pt plus 1fil &%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule width 1pt ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule width 1pt ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&\vrule ##&%
+\vbox to 1.5em{\hsize=\numlen\vfil\noindent##\vfil}&%
+\tabskip=0pt ##\vrule width 1pt \cr
+\noalign{\hrule height 1pt}
+\sdk@gridline{1}
+\noalign{\hrule}
+\sdk@gridline{2}
+\noalign{\hrule}
+\sdk@gridline{3}
+\noalign{\hrule height 1pt}
+\sdk@gridline{4}
+\noalign{\hrule}
+\sdk@gridline{5}
+\noalign{\hrule}
+\sdk@gridline{6}
+\noalign{\hrule height 1pt}
+\sdk@gridline{7}
+\noalign{\hrule}
+\sdk@gridline{8}
+\noalign{\hrule}
+\sdk@gridline{9}
+\noalign{\hrule height 1pt}}%
+}}
+
+% Initializes \sdk@q*c*n* with 1, then sets what we know based on \sdk@grid*c*
+\def\sdk@initgrid{%
+  \chardef\sdk@row = 1%
+  \loop
+    \chardef\sdk@col = 1%
+    {%
+      \loop
+        \chardef\sdk@num = 1%
+        {%
+          \loop
+            \sdk@assign{\sdk@row}{\sdk@col}{\sdk@num}{1}%
+            \sdk@addto{\sdk@num}{1}%
+            \ifnum\sdk@num < 10%
+          \repeat
+        }%
+        \sdk@addto{\sdk@col}{1}%
+        \ifnum\sdk@col < 10%
+      \repeat
+    }%
+    \sdk@addto{\sdk@row}{1}%
+    \ifnum\sdk@row < 10%
+  \repeat
+  \chardef\sdk@row = 1%
+  \loop
+    \chardef\sdk@col = 1%
+    {%
+      \loop
+        \expandafter\ifnum\csname sdk@grid\number\sdk@row c\number\sdk@col\endcsname > 0%
+          \sdk@eliminate{\number\sdk@row}{\number\sdk@col}{\csname sdk@grid\number\sdk@row c\number\sdk@col\endcsname}%
+        \fi
+        \sdk@addto{\sdk@col}{1}%
+        \ifnum\sdk@col < 10%
+      \repeat
+    }%
+    \sdk@addto{\sdk@row}{1}%
+    \ifnum\sdk@row < 10%
+  \repeat
+  \relax
+}
+
+% Sets \sdk@q{#1}c{#2}n{#3} to #4.
+\def\sdk@assign#1#2#3#4{\global
+  \expandafter\chardef\csname sdk@q\number #1c\number #2n\number #3\endcsname = #4}
+
+% Gives us the token \sdk@q{#1}c{#2}n{#3}.
+\def\sdk@get#1#2#3{\expandafter\number\csname sdk@q\number #1c\number #2n\number #3\endcsname}
+
+% \sdk@eliminate and \sdk@mark are called when adding a new digit to the grid.
+% \sdk@eliminate sets \sdk@q*c*n* in accordance with what we know if the number
+% at row #1 and column #2 is #3: all cells in the same row and column, row and
+% number, and column and number are set to 0, since none of those are possible
+% then. \sdk@mark calls \sdk@eliminate, modifies \sdk@grid appropriately, and
+% sets \sdk@marked to 1, indicating to \sdk@solve that a new grid square was
+% solved.
+\def\sdk@mark#1#2#3{%
+  \global\expandafter\chardef\csname sdk@grid\number #1c\number #2\endcsname = \number #3%
+  \sdk@eliminate#1#2#3%
+  \global\chardef\sdk@marked = 1%
+}
+
+\def\sdk@eliminate#1#2#3{{%
+    \chardef\sdk@count = 1%
+    \loop
+      \sdk@assign{\sdk@count}{#2}{#3}{0}%
+      \sdk@assign{#1}{\sdk@count}{#3}{0}%
+      \sdk@assign{#1}{#2}{\sdk@count}{0}%
+      \sdk@addto{\sdk@count}{1}%
+      \ifnum\sdk@count < 10%
+    \repeat
+    \chardef\sdk@ax = #1%
+    \sdk@squarebase{\sdk@ax}%
+    \chardef\sdk@ay = #2%
+    \sdk@squarebase{\sdk@ay}%
+    \chardef\sdk@count = \sdk@ax
+    \sdk@addto{\sdk@count}{2}%
+    \loop
+      \chardef\sdk@county = \sdk@ay
+      \sdk@addto{\sdk@county}{2}%
+      {%
+        \loop
+          \sdk@assign{\sdk@count}{\sdk@county}{#3}{0}%
+          \ifnum\sdk@county > \sdk@ay
+            \sdk@addto{\sdk@county}{-1}%
+        \repeat
+      }%
+      \ifnum\sdk@count > \sdk@ax
+        \sdk@addto{\sdk@count}{-1}%
+    \repeat
+}}
+
+% \sdk@elimonerow, \sdk@elimonecol, and \sdk@elimonenum implement the following
+% solution technique: if there is only one square in a given row or column where
+% a given number could possibly be, then that must be where it is; and if only
+% one number could possibly be the occupant of a given square, than that number
+% must be that occupant. The way \sdk@q*c*n* is set up, these tests are exactly
+% the same, just with different indicies in different places.
+\def\sdk@elimonerow{{%
+  \chardef\sdk@x = 1%
+  \loop
+    \chardef\sdk@y = 1%
+    {%
+      \loop
+        \chardef\sdk@z = 1%
+        {%
+          \chardef\sdk@sum = 0%
+          \loop
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@x}{\sdk@z}{\sdk@y}}%
+            \ifnum\sdk@z < 9%
+              \sdk@addto{\sdk@z}{1}%
+          \repeat
+          \ifnum\sdk@sum = 1%
+            \chardef\sdk@z = 1%
+            \loop
+              \expandafter\ifnum\sdk@get{\sdk@x}{\sdk@z}{\sdk@y} = 1%
+                \sdk@mark{\sdk@x}{\sdk@z}{\sdk@y}%
+              \fi
+              \ifnum\sdk@z < 9%
+                \sdk@addto{\sdk@z}{1}%
+            \repeat
+          \fi
+        }%
+        \ifnum\sdk@y < 9%
+          \sdk@addto{\sdk@y}{1}%
+      \repeat
+    }%
+    \ifnum\sdk@x < 9%
+      \sdk@addto{\sdk@x}{1}%
+  \repeat
+}}
+
+\def\sdk@elimonecol{{%
+  \chardef\sdk@x = 1%
+  \loop
+    \chardef\sdk@y = 1%
+    {%
+      \loop
+        \chardef\sdk@z = 1%
+        {%
+          \chardef\sdk@sum = 0%
+          \loop
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@z}{\sdk@x}{\sdk@y}}%
+            \ifnum\sdk@z < 9%
+              \sdk@addto{\sdk@z}{1}%
+          \repeat
+          \ifnum\sdk@sum = 1%
+            \chardef\sdk@z = 1%
+            \loop
+              \expandafter\ifnum\sdk@get{\sdk@z}{\sdk@x}{\sdk@y} = 1%
+                \sdk@mark{\sdk@z}{\sdk@x}{\sdk@y}%
+              \fi
+              \ifnum\sdk@z < 9%
+                \sdk@addto{\sdk@z}{1}%
+            \repeat
+          \fi
+        }%
+        \ifnum\sdk@y < 9%
+          \sdk@addto{\sdk@y}{1}%
+      \repeat
+    }%
+    \ifnum\sdk@x < 9%
+      \sdk@addto{\sdk@x}{1}%
+  \repeat
+}}
+
+\def\sdk@elimonenum{{%
+  \chardef\sdk@x = 1%
+  \loop
+    \chardef\sdk@y = 1%
+    {%
+      \loop
+        \chardef\sdk@z = 1%
+        {%
+          \chardef\sdk@sum = 0%
+          \loop
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@x}{\sdk@y}{\sdk@z}}%
+            \ifnum\sdk@z < 9%
+              \sdk@addto{\sdk@z}{1}%
+          \repeat
+          \ifnum\sdk@sum = 1%
+            \chardef\sdk@z = 1%
+            \loop
+              \expandafter\ifnum\sdk@get{\sdk@x}{\sdk@y}{\sdk@z} = 1%
+                \sdk@mark{\sdk@x}{\sdk@y}{\sdk@z}%
+              \fi
+              \ifnum\sdk@z < 9%
+                \sdk@addto{\sdk@z}{1}%
+            \repeat
+          \fi
+        }%
+        \ifnum\sdk@y < 9%
+          \sdk@addto{\sdk@y}{1}%
+      \repeat
+    }%
+    \ifnum\sdk@x < 9%
+      \sdk@addto{\sdk@x}{1}%
+  \repeat
+}}
+
+\def\sdk@elimonesquare{{%
+  \chardef\sdk@x = 1%
+  \loop
+    \chardef\sdk@y = 1%
+    {%
+      \loop
+        \chardef\sdk@z = 1%
+        {%
+          \loop
+            \chardef\sdk@sum = 0%
+            \chardef\sdk@bx = \sdk@x
+            \chardef\sdk@by = \sdk@y
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \sdk@addto{\sdk@bx}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \sdk@addto{\sdk@bx}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \chardef\sdk@bx = \sdk@x
+            \sdk@addto{\sdk@by}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \sdk@addto{\sdk@bx}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \sdk@addto{\sdk@bx}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \chardef\sdk@bx = \sdk@x
+            \sdk@addto{\sdk@by}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \sdk@addto{\sdk@bx}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \sdk@addto{\sdk@bx}{1}%
+            \sdk@addto{\sdk@sum}{\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z}}%
+            \ifnum\sdk@sum = 1%
+              \chardef\sdk@bx = \sdk@x
+              \chardef\sdk@by = \sdk@y
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \sdk@addto{\sdk@bx}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \sdk@addto{\sdk@bx}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \chardef\sdk@bx = \sdk@x
+              \sdk@addto{\sdk@by}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \sdk@addto{\sdk@bx}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \sdk@addto{\sdk@bx}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \chardef\sdk@bx = \sdk@x
+              \sdk@addto{\sdk@by}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \sdk@addto{\sdk@bx}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+              \sdk@addto{\sdk@bx}{1}%
+              \expandafter\ifnum\sdk@get{\sdk@bx}{\sdk@by}{\sdk@z} = 1%
+                \sdk@mark{\sdk@bx}{\sdk@by}{\sdk@z}%
+              \fi
+            \fi
+            \ifnum\sdk@z < 9%
+              \sdk@addto{\sdk@z}{1}%
+          \repeat
+        }%
+        \ifnum\sdk@y < 7%
+          \sdk@addto{\sdk@y}{3}%
+      \repeat
+    }%
+    \ifnum\sdk@x < 7%
+      \sdk@addto{\sdk@x}{3}%
+  \repeat
+}}
+
+% This macro works on the following idea; keep running the various solution
+% techniques (so far, only \sdk@elimonerow, \sdk@elimonecol, \sdk@elimonenum,
+% though many others are possible) until no more squares' numbers get deduced
+% (determined by \sdk@marked being set to one whenever \sdk@mark is called,
+% i.e. whenever a solution technique determines what a square's number must be).
+\def\sdk@solve{%
+  \loop
+    \chardef\sdk@marked = 0%
+    \sdk@elimonerow\sdk@elimonecol\sdk@elimonenum
+    \ifnum\sdk@marked = 1%
+  \repeat
+  \relax
+}

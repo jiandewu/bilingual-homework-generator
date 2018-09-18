@@ -1,0 +1,28 @@
+% Test the sudokubundle package
+% The PracTeX Journal, 2008-2 (tug.org/pracjourn)
+\documentclass{article}
+
+\usepackage{createsudoku}
+
+\begin{document}
+
+Print a suduko
+\begin{center}
+\sudoku{SudokuSolverSample.sud} % Print a puzzle
+\end{center}
+
+\newpage
+Solve the puzzle
+\begin{center}
+\sudokusolve{SudokuSolverSample.sud} % Solve a puzzle
+\end{center}
+
+\newpage
+Create a new puzzle from the solution to the previous puzzle
+\begin{minipage}[b]{0.4\textwidth}
+\begin{center}
+\generategrid  % Use the previous solution to generate a new puzzle
+\end{center}
+\end{minipage}
+
+\end{document}

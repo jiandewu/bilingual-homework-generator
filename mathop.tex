@@ -1,0 +1,209 @@
+\documentclass[12pt]{article}
+\usepackage[top=0.5in,bottom=0.5in,left=0.5in,right=0.5in]{geometry}
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,decorations.pathmorphing,positioning}
+
+\newcommand{\myunit}{0.7cm}
+\newcommand{\num}[1]{\node[rectangle,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit,anchor=south] {#1};}
+\newcommand{\nul}{\node[draw,rectangle, rounded corners,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit]{};}
+\newcommand{\nulls}{\node[rectangle, rounded corners,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit]{};}
+\newcommand{\lin}{\node[rectangle,outer sep=1,inner sep=0,minimum width=\myunit*1.1,anchor=north]{};}
+\newcommand{\arcs}{\node[fill=black,rectangle,outer sep=0,inner sep=0,minimum height=\myunit*1.1,anchor=south]{};}
+
+
+\newcommand\clocks[3]{
+%\begin{tikzpicture}[transform canvas={scale=#3}]
+    \newcommand\radius{1.5cm}
+    \newcommand\hour{#1}
+    \newcommand\minute{#2}
+    \foreach \x [evaluate = \x as \y using int(\x/30)] in {30,60,...,360} {
+        \draw [line width = \radius*0.1/10] (\x:\radius*9/10) -- (\x:\radius);
+        \node (\x) at (90-\x:\radius*8/10) {\y};
+    };
+    \foreach \x in {0,6,...,360} {
+        \draw [line width = \radius*0.1/20] (\x:\radius*9.5/10) -- (\x:\radius);
+    };
+    \draw [line width = \radius*0.1/10] (0:0cm) circle [radius = \radius];
+    %\draw (0:0cm) circle [radius = \radius*0.4/10];
+    \node (opoint) [draw,circle,minimum size=\radius*0.4/10,inner sep=1pt] at (0cm,0cm){};
+
+    \ifthenelse{ \equal{#3}{1} }{
+    \draw [line width = \radius*0.4/10] (90-\hour*30-30*\minute/60:-\radius*0.5/10) -- (90-\hour*30-30*\minute/60:\radius*5.5/10);
+    \draw [line width = \radius*0.2/10] (90-\minute*6:-\radius*1/10) -- (90-\minute*6:\radius*7.5/10);
+    \draw [line width = \radius*0.1/10] (90:-\radius*1.5/10) -- (90:\radius*8.5/10);}
+
+    \ifthenelse{ \equal{#3}{1} }{
+      \node [below=\radius*1.2 of opoint] {\underline{\qquad}:\underline{\qquad}};
+    }{
+      \node [below=\radius*1.2 of opoint] {\underline{#1}:\underline{#2}};
+    }
+%\end{tikzpicture}
+}
+
+\pagestyle{empty}
+\begin{document}
+\begin{center}
+\begin{tikzpicture}
+
+\begin{scope}[shift={(0,0)}]
+\clocks{3}{30}{0}
+\end{scope}
+
+\begin{scope}[shift={(4.5,0)}]
+\clocks{4}{27}{1}
+\end{scope}
+
+\begin{scope}[shift={(9,0)}]
+\clocks{12}{12}{1}
+\end{scope}
+
+\begin{scope}[shift={(13.5,0)}]
+\clocks{2}{05}{0}
+\end{scope}
+
+\begin{scope}[shift={(0,-4)}]
+\node (op) {$179\times 14=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&\num{1} & \num{7} &  \num{9} \\
+   \num{\times}&&&\num{1}& \num{4} \\
+   && \lin & \lin \\
+   \nulls&\nulls&\nulls& \nulls&\nulls \\
+};
+\draw[thick] (m-4-1.north west) -- (m-4-5.north east);
+\end{scope}
+
+\begin{scope}[shift={(4.5,-4)}]
+\node (op) {$34\times 53=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   && \num{3} &  \num{4} \\
+   \num{\times}&&\num{5}& \num{3} \\
+   && \lin & \lin \\
+   \nulls&\nul&\nul&\nul \\
+   \nul&\nul&\nul&\\
+   && \lin & \lin \\
+   \nul&\nul&\nul&\nul\\
+};
+\draw[thick] (m-4-1.north west) -- (m-4-4.north east);
+\draw[thick] (m-7-1.north west) -- (m-7-4.north east);
+\end{scope}
+
+\begin{scope}[shift={(9,-4)}]
+\node (op) {$57\div 19=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&& \nul \\
+   && \lin & \lin  \\
+   \num{19} &  \arcs & \num{5} &  \num{7} \\
+   && \nul & \nul \\
+   && \lin & \lin \\
+   &&\nulls& \nul \\
+};
+\draw[thick] (m-3-3.north west) -- (m-3-4.north east);
+\draw[thick,name=aa] (m-6-3.north west) -- (m-6-4.north east);
+\end{scope}
+
+\begin{scope}[shift={(13.5,-4)}]
+\node (op) {$630\div 18=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&&\nul&\nul \\
+   &&& \lin & \lin  \\
+   \num{18} &  \arcs & \num{6} & \num{3} &  \num{0} \\
+   &&\nul& \nul &  \\
+   &&& \lin & \lin \\
+   &&\nulls&\nul& \nul \\
+   &&&\nul& \nul \\
+   &&& \lin & \lin \\
+   &&&\nulls& \nul \\
+};
+\draw[thick] (m-3-3.north west) -- (m-3-5.north east);
+\draw[thick] (m-6-3.north west) -- (m-6-5.north east);
+\draw[thick] (m-9-4.north west) -- (m-9-5.north east);
+\end{scope}
+
+\begin{scope}[shift={(0,-12)}]
+\node (op) {$98\div 7=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&\nul&\nul \\
+   && \lin & \lin  \\
+   \num{7} &  \arcs & \num{9} &  \num{8} \\
+   && \nul &  \\
+   && \lin & \lin \\
+   &&\nul& \nul \\
+   &&\nul& \nul \\
+   && \lin & \lin \\
+   &&\nulls& \nul \\
+};
+\draw[thick] (m-3-3.north west) -- (m-3-4.north east);
+\draw[thick] (m-6-3.north west) -- (m-6-4.north east);
+\draw[thick] (m-9-3.north west) -- (m-9-4.north east);
+\end{scope}
+
+\begin{scope}[shift={(4.5,-12)}]
+\node (op) {$265\times 78=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&\num{2}& \num{6} &  \num{5} \\
+   &\num{\times}&&\num{7}& \num{8} \\
+   &&& \lin & \lin \\
+   &\nul&\nul&\nul& \nul \\
+   \nul&\nul&\nul&\nul&\\
+   &&& \lin & \lin \\
+   \nul&\nul&\nul&\nul&\nul\\
+};
+\draw[thick] (m-4-2.north west) -- (m-4-5.north east);
+\draw[thick] (m-7-1.north west) -- (m-7-5.north east);
+\end{scope}
+
+\begin{scope}[shift={(9,-12)}]
+\node (op) {$88\div 4=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&\nul& \nul \\
+   && \lin & \lin  \\
+   \num{4} &  \arcs & \num{8} &  \num{8} \\
+   && \nul &  \\
+   && \lin & \lin \\
+   &&\nulls& \nul \\
+   && \lin & \lin \\
+   &&\nulls& \nul \\
+   && \lin & \lin \\
+   &&\nulls& \nul \\
+};
+\draw[thick] (m-3-3.north west) -- (m-3-4.north east);
+\draw[thick,name=aa] (m-6-3.north west) -- (m-6-4.north east);
+\draw[thick,name=aa] (m-9-4.north west) -- (m-9-4.north east);
+\end{scope}
+
+\begin{scope}[shift={(13.5,-12)}]
+\node (op) {$241\times 199=\underline{\qquad}$};
+\matrix [matrix of math nodes,below=of op] (m)
+{
+   &&&\num{2} & \num{4} &  \num{1} \\
+   &\num{\times}&&\num{1}&\num{9}& \num{9} \\
+   && \lin & \lin \\
+   &\nulls&\nul&\nul& \nul&\nul \\
+   &\nul&\nul&\nul& \nul&\nulls \\
+   \nulls&\nul&\nul&\nul& \nulls&\nulls \\
+   &&& \lin & \lin \\
+   \nulls&\nul&\nul&\nul&\nul&\nul\\
+};
+\draw[thick] (m-4-2.north west) -- (m-4-6.north east);
+\draw[thick] (m-8-2.north west) -- (m-8-6.north east);
+\end{scope}
+
+\end{tikzpicture}
+\Large{
+\begin{align*}
+  19\times 17 &=\underline{\qquad\qquad} & 18\times 16 &=\underline{\qquad\qquad} & 15\times 13 &=\underline{\qquad\qquad}\\[10pt]
+  63\div 9 &=\underline{\qquad\qquad} & 56\div 7 &=\underline{\qquad\qquad} & 100\div 25 &=\underline{\qquad\qquad}\\[10pt]
+  42\times 48 &=\underline{\qquad\qquad} & 65\times 65 &=\underline{\qquad\qquad} & 92\times 98 &=\underline{\qquad\qquad}\\[10pt]
+  4\times 125 &=\underline{\qquad\qquad} & 25\times 8 &=\underline{\qquad\qquad} & 3\times 20 &=\underline{\qquad\qquad}
+\end{align*}}
+\end{center}
+\end{document}

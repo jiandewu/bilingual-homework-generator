@@ -1,0 +1,23 @@
+% lasudoku.sty
+% Zachary Catlin (zcatlin@purdue.edu), January 2005
+%
+% This file is a LaTeX wrapper for the macros in sudoku.tex. \sudoku loads in
+% the requested file using \sdk@input, then writes out the grid using
+% \sdk@writegrid. \sudokusolve sets up things for the solver with \sdk@initgrid
+% and solves as much of the problem as it can with \sdk@solve before getting to
+% the \sdk@writegrid part.
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lasudoku}
+
+\input{sudoku.tex}
+
+\newcommand{\sudoku}[1]{%
+  \sdk@input{#1}%
+  \sdk@writegrid}
+
+\newcommand{\sudokusolve}[1]{%
+  \sdk@input{#1}%
+  \sdk@initgrid
+  \sdk@solve
+  \sdk@writegrid}

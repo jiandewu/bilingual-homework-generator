@@ -1,0 +1,120 @@
+\documentclass[12pt]{article}
+%\usepackage{ctex}
+%\usepackage[no-math]{fontspec}
+\usepackage[top=0.5in,bottom=0.5in,left=0.5in,right=0.5in]{geometry}
+\usepackage{xeCJK}[2011/05/20 v2.4.1]
+\setCJKmainfont{KaiTi}
+
+\defaultfontfeatures{Mapping=tex-text}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix,arrows,decorations.pathmorphing,positioning}
+\usepackage{amsmath}
+%\usepackage{amssymb}
+%\usepackage{graphicx}
+%\usepackage{amsfonts}
+%\usepackage{listings}
+%\usepackage{natbib}
+%\usepackage{dcolumn}
+%\usepackage{tabularx}
+\usepackage{ulem}
+%\usepackage{enumitem}
+%\usepackage{array}
+%\usepackage{dashrule}
+\usepackage{scalerel}
+%\usepackage[usestackEOL]{stackengine}
+%\usepackage{adjustbox}
+%\usepackage{multirow}
+%\usepackage{booktabs}
+%\usepackage[math]{anttor}
+%\usepackage{emerald}
+%\usepackage[sfdefault]{quattrocento}
+
+% for mathop
+\newcommand{\myunit}{0.8cm}
+\newcommand{\num}[1]{\node[rectangle,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit,anchor=south] {#1};}
+\newcommand{\nul}{\node[draw,rectangle, rounded corners,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit]{};}
+\newcommand{\nulls}{\node[rectangle, rounded corners,outer sep=1,inner sep=1,minimum width=\myunit,minimum height=\myunit]{};}
+\newcommand{\lin}{\node[rectangle,outer sep=1,inner sep=0,minimum width=\myunit*1.1,anchor=north]{};}
+\newcommand{\arcs}{\node[fill=black,rectangle,outer sep=0,inner sep=0,minimum height=\myunit*1.1,anchor=south]{};}
+%----------------
+
+% \gridraiseamount is a font-specific value
+\newcommand\gridraiseamount{0.12em}
+
+% \grid for a single character
+\newcommand\grid[1]{%
+\begin{tikzpicture}[baseline=(char.base)]
+  \path[use as bounding box]
+    (0,0) rectangle (1em,1em);
+  \draw[help lines,step=0.5em]
+    (0,0) grid (1em,1em);
+  \draw[help lines,dashed]
+    (0,0) -- (1em,1em)  (0,1em) -- (1em,0);
+  \node[inner sep=0pt,anchor=base west]
+    (char) at (0em,\gridraiseamount) {#1};
+\end{tikzpicture}}
+
+% \grid for a single character
+\newcommand\engrid[1]{%
+\begin{tikzpicture}[baseline=(char.base)]
+  \path[use as bounding box]
+    (0,0) rectangle (5.4em,1em);
+  \draw[help lines,xstep=.6em,ystep=0.5em]
+    (0,0) grid (3.6em,1em);
+  \draw[help lines,xstep=.4em,ystep=1em]
+    (3.6em,0em) grid (4em,1em);
+  \draw[help lines,xstep=.8em,ystep=0.5em]
+    (4em,0em) grid (4.8em,1em);
+  \draw[help lines,xstep=.6em,ystep=0.5em]
+    (4.8em,0em) grid (5.4em,1em);
+  \node[inner sep=0pt,anchor=base west]
+    (char) at (0em,\gridraiseamount) {#1};
+\end{tikzpicture}}
+
+% define height of lowercase letters
+\newcommand{\lowercaseheight}{1ex}
+% define height of uppercase letters
+\newcommand{\uppercaseheight}{1.6ex}
+% define depth of descenders
+\newcommand{\descenderdepth}{-0.5ex}
+\newcommand\enlines[1]{\fontsize{42pt}{\baselineskip}\selectfont
+\raggedright
+\begin{tikzpicture}[overlay]
+  % baseline
+  \draw ((0,0) -- ++(\textwidth,0);
+  % lowercase height
+  \draw [ultra thin] (0,\lowercaseheight) -- ++(\textwidth,0);
+  % uppercase height
+  \draw (0,\uppercaseheight) -- ++(\textwidth,0);
+  % descender depth
+  \draw [ultra thin] (0,\descenderdepth) -- ++(\textwidth,0);
+  \node[inner sep=0pt,anchor=base west]
+    (char) at (0em,0em) {#1};
+\end{tikzpicture}\\[1.55cm]
+}
+
+\pagestyle{empty}
+\begin{document}
+%{\Large
+%\begin{center}
+%  \hspace{-.2cm}姓名:{\fontsize{38pt}{\baselineskip}\selectfont\grid{}\grid{}\grid{}}\quad Date:\uline{\quad}/\uline{\quad}/\uline{\quad\quad}\quad Temp:\uline{\quad\quad}$^{\circ}{\mathrm F}$\quad 温度:\uline{\quad\quad}$^{\circ}{\mathrm C}$
+%\end{center}}
+
+{\fontsize{40pt}{\baselineskip}\selectfont
+\xeCJKsetup{PunctStyle=plain}
+\vspace{0.5cm}
+\center
+%\grid{小} \grid{池}\\[.2cm]
+%\grid{泉} \grid{眼} \grid{无} \grid{声} \grid{惜} \grid{细} \grid{流} \grid{，}\\[.1cm]
+%\grid{树} \grid{阴} \grid{照} \grid{水} \grid{爱} \grid{晴} \grid{柔} \grid{。}\\[.1cm]
+%\grid{小} \grid{荷} \grid{才} \grid{露} \grid{尖} \grid{尖} \grid{角} \grid{，}\\[.1cm]
+%\grid{早} \grid{有} \grid{蜻} \grid{蜓} \grid{立} \grid{上} \grid{头} \grid{。}\\[.5cm]
+
+\grid{静}\grid{夜}\grid{思}\\[.2cm]
+\grid{床}\grid{前}\grid{明}\grid{月}\grid{光}\grid{，}\\[.1cm]
+\grid{疑}\grid{是}\grid{地}\grid{上}\grid{霜}\grid{。}\\[.1cm]
+\grid{举}\grid{头}\grid{望}\grid{明}\grid{月}\grid{，}\\[.1cm]
+\grid{低}\grid{头}\grid{思}\grid{故}\grid{乡}\grid{。}\\[.1cm]
+}
+\end{document}
